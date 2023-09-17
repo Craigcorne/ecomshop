@@ -2,7 +2,6 @@ const express = require("express");
 const Carousel = require("../model/carousel");
 const router = express.Router();
 const cloudinary = require("cloudinary");
-
 //create carousel
 router.post("/carousel", async (req, res) => {
   const { caption } = req.body;

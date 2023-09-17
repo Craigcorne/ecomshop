@@ -144,7 +144,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <Events />
+      {/* <Events /> */}
       <FeaturedProduct />
       <Sponsored />
       <Footer />

@@ -28,6 +28,7 @@ const Payment = () => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
     setOrderData(orderData);
   }, []);
+
   const exchangeRate = statements?.map((i) => i.exchangeRate);
   const paypalTotals = (orderData?.totalPrice / exchangeRate).toFixed(2);
 
@@ -75,6 +76,7 @@ const Payment = () => {
 
   const paypalPaymentHandler = async (paymentInfo) => {
     setLoading2(true);
+
     const config = {
       headers: {
         "Content-Type": "application/json",
@@ -185,6 +187,7 @@ const PaymentInfo = ({
   const [successMessage, setSuccessMessage] = useState("");
   const [validating, setValidating] = useState(false);
   const [limit, setLimit] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
 
   useEffect(() => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
@@ -194,6 +197,43 @@ const PaymentInfo = ({
 
   var reqcount = 0;
   const navigate = useNavigate();
+
+  const createOrderNow = async () => {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const order = {
+      cart: orderData?.cart,
+      shippingAddress: orderData?.shippingAddress,
+      shippingPrice: orderData.shippingPrice,
+      user: user && user,
+      totalPrice: orderData?.totalPrice,
+    };
+    order.paymentInfo = {
+      type: "Mpesa",
+      status: "succeeded",
+    };
+    setValidating(true);
+    setSuccess(false);
+    setTimeout(async () => {
+      await axios
+        .post(`${server}/order/create-order`, order, config)
+        .then((res) => {
+          setValidating(false);
+          setOpen(false);
+          navigate("/order/success");
+          toast.success("Your Payment is Sucessful and order placed");
+          localStorage.setItem("cartItems", JSON.stringify([]));
+          localStorage.setItem("latestOrder", JSON.stringify([]));
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        });
+    }, 5000);
+  };
+
   const stkPushQuery = (checkOutRequestID) => {
     const timer = setInterval(async () => {
       reqcount += 1;
@@ -211,53 +251,13 @@ const PaymentInfo = ({
           CheckoutRequestID: checkOutRequestID,
         })
         .then(async (response) => {
-          if (
-            response.data.ResultCode === "0" &&
-            response.data.ResponseDescription ===
-              "The service request has been accepted successsfully"
-          ) {
+          if (response.data.ResultCode === "0") {
+            createOrderNow();
             setSuccess(false);
             setValidating(true);
             clearInterval(timer);
             //successfull payment
             setLoading(false);
-            const config = {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            };
-            const order = {
-              cart: orderData?.cart,
-              shippingAddress: orderData?.shippingAddress,
-              shippingPrice: orderData.shippingPrice,
-              user: user && user,
-              totalPrice: orderData?.totalPrice,
-            };
-
-            order.paymentInfo = {
-              type: "Mpesa",
-              status: "succeeded",
-            };
-            console.log("response data", response.data);
-            try {
-              await axios.post(`${server}/pesa/callback`, response.data);
-              toast.success("callback was success");
-            } catch (error) {
-              console.log(error);
-              toast.error("callback failed");
-            }
-            await axios
-              .post(`${server}/order/create-order`, order, config)
-              .then((res) => {
-                setOpen(false);
-                navigate("/order/success");
-                toast.success("Your Payment is Sucessful and order placed");
-                localStorage.setItem("cartItems", JSON.stringify([]));
-                localStorage.setItem("latestOrder", JSON.stringify([]));
-                // setTimeout(() => {
-                //   window.location.reload();
-                // }, 5000);
-              });
             // toast.success("Your Payment is Validating");
           } else if (response.errorCode === "500.001.1001") {
           } else {
@@ -275,7 +275,7 @@ const PaymentInfo = ({
         .catch((err) => {
           console.log(err.message);
         });
-    }, 2000);
+    }, 5000);
   };
 
   const formik = useFormik({
@@ -305,11 +305,14 @@ const PaymentInfo = ({
           );
         })
         .catch((error) => {
-          toast.error(error.response.data.message);
-          setLoading(false);
           setError(true);
+          if (error.response.data.message === "Request cancelled by user") {
+            setErrorMessage("You cancelled the transaction");
+          } else {
+            setErrorMessage(error.response.data.message);
+          }
+          setLoading(false);
           setSuccess(false);
-          setErrorMessage(error.response.data.message);
         });
     },
   });
