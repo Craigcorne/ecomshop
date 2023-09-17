@@ -79,7 +79,7 @@ router.post(
         PartyA: `254${phone}`,
         PartyB: short_code,
         PhoneNumber: `254${phone}`,
-        CallBackURL: `${callbackurl}/api/v2/pesa/${callbackroute}`,
+        CallBackURL: "https://af21-102-219-210-11.ngrok-free.app/callback",
         AccountReference: "eShop",
         TransactionDesc: "Lipa na M-PESA",
       };
