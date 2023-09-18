@@ -178,7 +178,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                       prefix={"Ksh. "}
                     />
                   </h4>
-                  <h3 className={`${styles.price}`}>
+                  {/* <h3 className={`${styles.price}`}>
                     {data.originalPrice ? (
                       <NumericFormat
                         value={data.originalPrice}
@@ -187,7 +187,7 @@ const ProductDetailsCard = ({ setOpen, data }) => {
                         prefix={"Ksh. "}
                       />
                     ) : null}
-                  </h3>
+                  </h3> */}
                 </div>
                 {/* Display Sizes */}
                 {data.sizes && data.sizes.length > 1 && (

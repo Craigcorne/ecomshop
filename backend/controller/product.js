@@ -47,6 +47,7 @@ router.post(
           tags,
           originalPrice,
           discountPrice,
+          dollarPrice,
           stock,
           condition,
           reviews,
@@ -65,6 +66,7 @@ router.post(
           tags,
           originalPrice,
           discountPrice,
+          dollarPrice,
           stock,
           condition,
           images: imagesLinks,
@@ -251,7 +253,7 @@ router.get(
   })
 );
 
-//update product
+// update product
 router.put(
   "/update-product/:productId",
   catchAsyncErrors(async (req, res, next) => {

@@ -13,6 +13,7 @@ import Spinner from "../Spinner";
 import { server } from "../../server";
 import axios from "axios";
 import CustomModal from "../CustomModal";
+import { useSelector } from "react-redux";
 
 const editProductSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -27,6 +28,7 @@ const editProductSchema = yup.object({
 
 const EditProduct = () => {
   const { productId } = useParams();
+  const { statements } = useSelector((state) => state.statements);
   const navigate = useNavigate();
 
   const [images, setImages] = useState([]);
@@ -50,6 +52,8 @@ const EditProduct = () => {
     updatedSizes[index][field] = value;
     formik.setFieldValue("sizes", updatedSizes);
   };
+
+  const exchangeRate = statements?.map((i) => i.exchangeRate);
 
   const formik = useFormik({
     initialValues: {
@@ -79,6 +83,11 @@ const EditProduct = () => {
         const condition = values.condition;
         const sizes = values.sizes;
 
+        const sizesWithDollarPrice = sizes.map((size) => ({
+          ...size,
+          dollarPrice: size.price / exchangeRate,
+        }));
+
         const newForm = new FormData();
 
         images.forEach((image) => {
@@ -92,23 +101,18 @@ const EditProduct = () => {
         newForm.append("discountPrice", discountPrice);
         newForm.append("stock", stock);
         newForm.append("condition", condition);
-        sizes.forEach((size, index) => {
+        sizesWithDollarPrice.forEach((size, index) => {
           newForm.append(`sizes[${index}].name`, size.name);
           newForm.append(`sizes[${index}].price`, size.price);
           newForm.append(`sizes[${index}].stock`, size.stock);
+          newForm.append(`sizes[${index}].dollarPrice`, size.dollarPrice);
         });
-        await axios.put(`${server}/product/update-product/${productId}`, {
-          name,
-          description,
-          category,
-          tags,
-          originalPrice,
-          discountPrice,
-          stock,
-          condition,
-          images,
-          sizes,
-        });
+
+        // Use axios to send the updated product data
+        await axios.put(
+          `${server}/product/update-product/${productId}`,
+          newForm
+        );
 
         setLoading(false);
         toast.success("Product updated!");
@@ -153,7 +157,7 @@ const EditProduct = () => {
           sizes: productData.sizes,
         });
 
-        console.log(sizes);
+        console.log(productData);
         // setcurrentSizes(productData.sizes);
 
         setcurrentImages(productData.images);
@@ -435,16 +439,24 @@ const EditProduct = () => {
                       className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       placeholder="Stock"
                     />
+
+                    <p>
+                      Dollar Price:{" "}
+                      {exchangeRate ? (
+                        (parseFloat(size.price) / exchangeRate).toFixed(2)
+                      ) : (
+                        <span>Exchange rate not available</span>
+                      )}
+                    </p>
+
                     <button
                       type="button"
-                      // onClick={() => handleDeleteSize(index)}
                       onClick={() => setOperations2(index)}
                       className="text-red-500 cursor-pointer"
                     >
                       <AiOutlineDelete size={20} />
                     </button>
                     <div className="text-red-500">
-                      {/* Display validation errors for sizes (if any) */}
                       {formik.touched.sizes &&
                         formik.errors.sizes &&
                         formik.errors.sizes[index] &&

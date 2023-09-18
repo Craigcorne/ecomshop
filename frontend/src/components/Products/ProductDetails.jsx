@@ -281,13 +281,13 @@ const ProductDetails = ({ data, isEvent }) => {
                           prefix={"Ksh. "}
                         />
                       </h4>
-                      <h3 className={`${styles.price}`}>
+                      {/* <h3 className={`${styles.price}`}>
                         <NumericFormat
                           value={data.originalPrice}
                           displayType={"text"}
                           thousandSeparator={true}
                         />
-                      </h3>
+                      </h3> */}
                     </div>
                     <p
                       className={`

@@ -30,6 +30,7 @@ const createProductSchema = yup.object({
 const CreateProduct = () => {
   const { seller } = useSelector((state) => state.seller);
   const { success, error } = useSelector((state) => state.products);
+  const { statements } = useSelector((state) => state.statements);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -38,6 +39,8 @@ const CreateProduct = () => {
   const [loading, setLoading] = useState(false);
 
   const [sizes, setSizes] = useState([{ name: "", price: "", stock: "" }]);
+
+  const exchangeRate = statements?.map((i) => i.exchangeRate);
 
   useEffect(() => {
     if (error) {
@@ -73,6 +76,10 @@ const CreateProduct = () => {
       reader.readAsDataURL(file);
     });
   };
+
+  function calculateDollarPrice(price, exchangeRate) {
+    return price / exchangeRate;
+  }
   const handleSizeChange = (index, field, value) => {
     const updatedSizes = [...sizes];
     updatedSizes[index][field] = value;
@@ -107,7 +114,13 @@ const CreateProduct = () => {
       const discountPrice = values.discountPrice;
       const stock = values.stock;
       const condition = values.condition;
-      // const sizes1 = sizes;
+
+      const dollarPrice = discountPrice / exchangeRate;
+
+      const sizesWithDollarPrice = sizes.map((size) => ({
+        ...size,
+        dollarPrice: calculateDollarPrice(size.price, exchangeRate),
+      }));
 
       const newForm = new FormData();
 
@@ -123,11 +136,15 @@ const CreateProduct = () => {
       newForm.append("stock", stock);
       newForm.append("condition", condition);
       newForm.append("shopId", seller._id);
-      sizes.forEach((size, index) => {
+      sizesWithDollarPrice.forEach((size, index) => {
         newForm.append(`sizes[${index}].name`, size.name);
         newForm.append(`sizes[${index}].price`, size.price);
+        newForm.append(`sizes[${index}].dollarPrice`, size.dollarPrice);
         newForm.append(`sizes[${index}].stock`, size.stock);
       });
+
+      newForm.append("dollarPrice", dollarPrice);
+
       setLoading(true);
       dispatch(
         createProduct({
@@ -141,10 +158,13 @@ const CreateProduct = () => {
           stock,
           shopId: seller._id,
           images,
-          sizes,
+          sizes: sizesWithDollarPrice,
+          dollarPrice: dollarPrice,
         })
       );
       setLoading(false);
+
+      console.log(dollarPrice);
     },
   });
   const deleteImage = (index) => {
@@ -324,6 +344,15 @@ const CreateProduct = () => {
                 className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Stock"
               />
+
+              <p>
+                Dollar Price:{" "}
+                {exchangeRate ? (
+                  (parseFloat(size.price) / exchangeRate).toFixed(2)
+                ) : (
+                  <span>Exchange rate not available</span>
+                )}
+              </p>
               <button
                 type="button"
                 onClick={() => handleDeleteSize(index)}
@@ -355,6 +384,7 @@ const CreateProduct = () => {
             Add Size
           </button>
         </div>
+
         <br />
         <div>
           <label className="pb-2">Original Price</label>
