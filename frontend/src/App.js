@@ -85,6 +85,8 @@ import ComingSoon from "./pages/ComingSoon";
 import Exchange from "./Trial/Exchange";
 import ScrollToTop from "./components/ScroolTop";
 import DynamicLoader from "./components/Layout/DynamicLoader";
+import CreateFlashSale from "./components/Shop/CreateFlashSale";
+import ShopAllFlashSale from "./pages/Shop/ShopAllFlashSale";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -275,6 +277,22 @@ const App = () => {
           element={
             <SellerProtectedRoute>
               <ShopDashboardPage />
+            </SellerProtectedRoute>
+          }
+        />
+        <Route
+          path="/flash-sale"
+          element={
+            <SellerProtectedRoute>
+              <CreateFlashSale />
+            </SellerProtectedRoute>
+          }
+        />
+        <Route
+          path="/all-flash-sale"
+          element={
+            <SellerProtectedRoute>
+              <ShopAllFlashSale />
             </SellerProtectedRoute>
           }
         />

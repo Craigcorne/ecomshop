@@ -713,3 +713,46 @@ input[type="number"] {
 .buttons a {
   color: #fcba7f;
 }
+
+/* flashsale image slider */
+.image-carousel {
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  transition: transform 0.5s ease;
+}
+
+.image-carousel img {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.dot-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+.dot.active {
+  background-color: #007bff;
+}
+.countdown-container {
+  text-align: center;
+}
+
+.countdown {
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .countdown {
+    font-size: 0.2px;
+  }
+}
