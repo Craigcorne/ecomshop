@@ -40,14 +40,22 @@ const CountDownn = ({ data }) => {
       return null;
     }
   }
+  const isOneHourLeft = timeLeft && timeLeft.h === 1;
 
   return (
-    <div className="countdown-container">
+    <div
+      className={`countdown-container ${isOneHourLeft ? "red-countdown" : ""}`}
+    >
       {timeLeft === null ? (
         <span className="text-[red] text-[25px]">Time's Up</span>
       ) : (
         Object.keys(timeLeft).map((interval) => (
-          <span key={interval} className="text-[25px] text-[#475ad2]">
+          <span
+            key={interval}
+            className={`text-[25px] ${
+              isOneHourLeft ? "text-[red]" : "text-[#475ad2]"
+            }`}
+          >
             {timeLeft[interval]} {interval}{" "}
           </span>
         ))

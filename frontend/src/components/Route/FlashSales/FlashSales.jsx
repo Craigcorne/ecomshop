@@ -29,6 +29,11 @@ const FlashSale = () => {
             });
           }
         }
+        combinedData.sort((a, b) => {
+          const endDateA = new Date(a.flashSale.endDate).getTime();
+          const endDateB = new Date(b.flashSale.endDate).getTime();
+          return endDateA - endDateB;
+        });
 
         setData(combinedData);
       })

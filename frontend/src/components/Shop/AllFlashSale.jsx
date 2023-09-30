@@ -53,9 +53,9 @@ const AllFlashSale = () => {
     }
   };
 
-  const setOperations = async (productId) => {
+  const setOperations = async (id) => {
     setModalOpen(true);
-    setId(productId);
+    setId(id);
   };
 
   useEffect(() => {
