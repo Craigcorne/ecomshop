@@ -20,7 +20,6 @@ const HomePage = () => {
       <Categories />
       <FlashSale />
       <BestDeals />
-
       {/* <Events /> */}
       <FeaturedProduct />
       <Sponsored />

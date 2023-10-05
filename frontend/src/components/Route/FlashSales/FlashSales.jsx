@@ -45,22 +45,25 @@ const FlashSale = () => {
   return (
     <div className="overflow-y-hidden">
       <div className={`${styles.section}`}>
-        <div className={`${styles.heading}`}>
-          <h1>Flash Sale</h1>
-        </div>
-        <div className="overflow-x-auto border-0">
-          <div className="flex space-x-4 mb-12">
-            {data &&
-              data.map((combinedItem, index) => (
-                <div
-                  key={index}
-                  className="flex-none w-[200px] sm:w-[295px] lg:w-[300px]"
-                >
-                  <FlashSaleCard data={combinedItem} key={index} />
-                </div>
-              ))}
-          </div>
-        </div>
+        {data.length > 0 && (
+          <>
+            <div className={`${styles.heading}`}>
+              <h1>Flash Sale</h1>
+            </div>
+            <div className="overflow-x-auto border-0">
+              <div className="flex space-x-4 mb-12">
+                {data.map((combinedItem, index) => (
+                  <div
+                    key={index}
+                    className="flex-none w-[200px] sm:w-[295px] lg:w-[300px]"
+                  >
+                    <FlashSaleCard data={combinedItem} key={index} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
