@@ -173,7 +173,12 @@ const CreateFlashSale = () => {
             <div>
               <h2>Selected Product Details</h2>
               <p>Name: {selectedProduct.name}</p>
-              <p>Description: {selectedProduct.description}</p>
+              <p>Description: </p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: selectedProduct.description,
+                }}
+              ></p>
               <p>Category: {selectedProduct.category}</p>
 
               <p>tags: {selectedProduct.tags}</p>
@@ -194,7 +199,7 @@ const CreateFlashSale = () => {
                     <div key={index}>
                       <img
                         src={image.url}
-                        alt={`Product Image ${index + 1}`}
+                        alt="product images"
                         className="h-[120px] w-[120px] object-cover m-2"
                       />
                     </div>

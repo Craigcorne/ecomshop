@@ -749,6 +749,7 @@ input[type="number"] {
 
 .countdown {
   font-size: 20px;
+  display: flex;
 }
 
 @media (max-width: 768px) {

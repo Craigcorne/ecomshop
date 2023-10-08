@@ -45,6 +45,7 @@ const FlashSale = () => {
   return (
     <div className="overflow-y-hidden">
       <div className={`${styles.section}`}>
+        {/* add this */}
         {data.length > 0 && (
           <>
             <div className={`${styles.heading}`}>

@@ -28,20 +28,22 @@ const FlashSaleCard = ({ data }) => {
     setCurrentImageIndex(index);
   };
 
+  console.log("fadaaataa", data);
+
   const addToCartHandler = (id) => {
-    console.log("data", data);
+    // console.log("data", data);
     if (sizes.length > 1) {
       navigate(`/product/${_id}`);
       toast.info("Select size first.");
     } else {
-      const isItemExists = cart && cart.find((i) => i._id === id);
+      const isItemExists = cart && cart.find((i) => i._id === _id);
       if (isItemExists) {
         toast.error("Item already in cart!");
       } else {
         if (data.stock < 1) {
           toast.error("Product stock limited!");
         } else {
-          const cartData = { ...data, qty: 1 };
+          const cartData = { ...product, qty: 1 };
           dispatch(addTocart(cartData));
           toast.success("Item added to cart successfully!");
         }
@@ -58,14 +60,13 @@ const FlashSaleCard = ({ data }) => {
     const newIndex = currentImageIndex === 0 ? maxIndex : currentImageIndex - 1;
     setCurrentImageIndex(newIndex);
   };
-
   const slideRenderer = ({ index, key }) => (
     <div key={key} className="image-carousel relative">
-      {images && images[index] && images[index].url ? (
+      {images && images.length > 0 && images[index] && images[index].url ? (
         <img
           src={images[index].url}
           alt={`Product ${index + 1}`}
-          className="w-full h-[250px] object-cover"
+          className="w-full h-[170px] object-cover"
         />
       ) : (
         <div className="w-full h-[250px] bg-gray-200 flex items-center justify-center">
@@ -122,9 +123,9 @@ const FlashSaleCard = ({ data }) => {
             <h5 className={`${styles.shop_name}`}>{shop.name}</h5>
           </Link>
           <Link to={`/product/${_id}`}>
-            <h2 className="text-xl font-semibold mb-2">
-              {name.length > 10 ? name.slice(0, 10) + "..." : name}
-            </h2>
+            <h4 className="pb-3 font-[500]">
+              {name.length > 25 ? name.slice(0, 25) + "..." : name}
+            </h4>
           </Link>
 
           <div className="py-2 flex items-center justify-between">
@@ -147,13 +148,22 @@ const FlashSaleCard = ({ data }) => {
             <p className="text-gray-600">Sale Ends In:</p>
             <CountDownn data={data} />
           </div>
-          <a
-            href="#"
-            className="mt-3 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            onClick={() => addToCartHandler(data._id)}
-          >
-            Add to Cart
-          </a>
+          <div className="flex gap-2">
+            <a
+              href="#"
+              className="mt-3 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              onClick={() => addToCartHandler(_id)}
+            >
+              Add to Cart
+              {/* we need to work on this add to cart // go to cart  */}
+            </a>
+            <Link
+              to={`/product/${_id}`}
+              className="mt-3 inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              see more
+            </Link>
+          </div>
         </div>
       </>
     </div>
