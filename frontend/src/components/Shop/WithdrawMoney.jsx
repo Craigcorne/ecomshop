@@ -15,10 +15,12 @@ const WithdrawMoney = () => {
   const { seller } = useSelector((state) => state.seller);
   const [withdrawAmount, setWithdrawAmount] = useState(50);
   const [phoneNumber, setPhoneNumber] = useState(seller.phoneNumber);
-  const maximumWithdrawAmount = seller.availableBalance;
   const [availableBalance, setAvailableBalance] = useState(
     seller.availableBalance
   );
+
+  const transferFee = withdrawAmount <= 1000 ? 15 : 22;
+  const maximumWithdrawAmount = seller.availableBalance - transferFee;
 
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller._id));
@@ -43,7 +45,8 @@ const WithdrawMoney = () => {
         if (response.data) {
           console.log("M-Pesa API Response:", response.data);
           toast.success("Withdrawal request sent successfully!");
-          const updatedBalance = availableBalance - withdrawAmount;
+          const updatedBalance =
+            availableBalance - (withdrawAmount + transferFee);
           setAvailableBalance(updatedBalance);
         }
       } catch (error) {

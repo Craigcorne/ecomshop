@@ -205,9 +205,9 @@ const App = () => {
         <Route
           path="/checkout"
           element={
-            // <ProtectedRoute>
-            <CheckoutPage />
-            // </ProtectedRoute>
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
           }
         />
         <Route path="/order/success" element={<OrderSuccessPage />} />
