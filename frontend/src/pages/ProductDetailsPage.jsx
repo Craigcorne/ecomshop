@@ -6,16 +6,16 @@ import ProductDetails from "../components/Products/ProductDetails";
 import SuggestedProduct from "../components/Products/SuggestedProduct";
 import { useSelector } from "react-redux";
 import Meta from "../components/Meta";
+import ShopProduct from "../components/Products/ShopProduct";
 
 const ProductDetailsPage = () => {
   const { allProducts } = useSelector((state) => state.products);
   const { allEvents } = useSelector((state) => state.events);
   const { id } = useParams();
   const [data, setData] = useState(null);
+  const [data1, setData1] = useState(null);
   const [searchParams] = useSearchParams();
   const eventData = searchParams.get("isEvent");
-
-  console.log("allProducts", allProducts);
 
   useEffect(() => {
     if (eventData !== null) {
@@ -34,6 +34,7 @@ const ProductDetailsPage = () => {
       <Header />
       <ProductDetails data={data} />
       {!eventData && <>{data && <SuggestedProduct data={data} />}</>}
+      <ShopProduct data={data} />
       <Footer />
     </div>
   );
