@@ -762,3 +762,15 @@ input[type="number"] {
 .red-countdown {
   color: red;
 }
+
+.textz {
+  margin-left: 15px;
+  font-size: 18px;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .textz {
+    font-size: 15px;
+  }
+}

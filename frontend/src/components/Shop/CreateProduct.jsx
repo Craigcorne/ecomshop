@@ -39,6 +39,8 @@ const CreateProduct = () => {
   const [loading, setLoading] = useState(false);
 
   const [sizes, setSizes] = useState([{ name: "", price: "", stock: "" }]);
+  const [totalStock, setTotalStock] = useState(0);
+  const [hasSizes, setHasSizes] = useState(false);
 
   const exchangeRate = statements?.map((i) => i.exchangeRate);
 
@@ -84,7 +86,22 @@ const CreateProduct = () => {
     const updatedSizes = [...sizes];
     updatedSizes[index][field] = value;
     setSizes(updatedSizes);
+
+    if (updatedSizes.length > 0) {
+      let newTotalStock = 0;
+      updatedSizes.forEach((size) => {
+        if (!isNaN(parseInt(size.stock))) {
+          newTotalStock += parseInt(size.stock);
+        }
+      });
+      setTotalStock(newTotalStock);
+      setHasSizes(true);
+    } else {
+      setTotalStock(0);
+      setHasSizes(false);
+    }
   };
+
   const handleDeleteSize = (index) => {
     const updatedSizes = [...sizes];
     updatedSizes.splice(index, 1);
@@ -429,7 +446,7 @@ const CreateProduct = () => {
             name="price"
             onChange={formik.handleChange("stock")}
             onBlur={formik.handleBlur("stock")}
-            value={formik.values.stock}
+            value={hasSizes ? totalStock : formik.values.stock}
             className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="Enter your product stock..."
           />

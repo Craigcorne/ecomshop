@@ -46,11 +46,25 @@ const EditProduct = () => {
 
   const [image, setImage] = useState("");
   const [sizes, setSizes] = useState([{ name: "", price: "", stock: "" }]);
+  const [hasSizes, setHasSizes] = useState(false);
 
   const handleSizeChange = (index, field, value) => {
     const updatedSizes = [...formik.values.sizes];
     updatedSizes[index][field] = value;
     formik.setFieldValue("sizes", updatedSizes);
+    if (updatedSizes.length > 0) {
+      let newTotalStock = 0;
+      updatedSizes.forEach((size) => {
+        if (!isNaN(parseInt(size.stock))) {
+          newTotalStock += parseInt(size.stock);
+        }
+      });
+      formik.setFieldValue("stock", newTotalStock);
+      setHasSizes(true);
+    } else {
+      formik.setFieldValue("stock", "");
+      setHasSizes(false);
+    }
   };
 
   const exchangeRate = statements?.map((i) => i.exchangeRate);
@@ -145,22 +159,41 @@ const EditProduct = () => {
 
         const productData = response.data.product;
         console.log("product data ", productData);
-        formik.setValues({
-          name: productData.name,
-          description: productData.description,
-          category: productData.category,
-          tags: productData.tags,
-          originalPrice: productData.originalPrice,
-          discountPrice: productData.discountPrice,
-          stock: productData.stock,
-          condition: productData.condition,
-          sizes: productData.sizes,
-        });
+
+        if (productData.sizes && productData.sizes.length > 0) {
+          let initialStock = 0;
+          productData.sizes.forEach((size) => {
+            if (!isNaN(parseInt(size.stock))) {
+              initialStock += parseInt(size.stock);
+            }
+          });
+
+          formik.setValues({
+            name: productData.name,
+            description: productData.description,
+            category: productData.category,
+            tags: productData.tags,
+            originalPrice: productData.originalPrice,
+            discountPrice: productData.discountPrice,
+            stock: initialStock,
+            condition: productData.condition,
+            sizes: productData.sizes,
+          });
+        } else {
+          formik.setValues({
+            name: productData.name,
+            description: productData.description,
+            category: productData.category,
+            tags: productData.tags,
+            originalPrice: productData.originalPrice,
+            discountPrice: productData.discountPrice,
+            stock: productData.stock,
+            condition: productData.condition,
+            sizes: [],
+          });
+        }
 
         console.log(productData);
-        // setcurrentSizes(productData.sizes);
-
-        setcurrentImages(productData.images);
       } catch (error) {
         console.log(error);
       }
@@ -246,14 +279,14 @@ const EditProduct = () => {
   const customStyles = [
     {
       video: {
-        width: "100%", // Set the width of videos to 100%
-        height: "auto", // Auto-adjust the height to maintain aspect ratio
+        width: "100%",
+        height: "auto",
       },
     },
     {
       img: {
-        maxWidth: "100%", // Set the maximum width for images to 100%
-        height: "auto", // Auto-adjust the height to maintain aspect ratio
+        maxWidth: "100%",
+        height: "auto",
       },
     },
   ];
@@ -523,7 +556,7 @@ const EditProduct = () => {
                 name="stock"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.stock}
+                value={hasSizes ? formik.values.stock : formik.values.stock}
                 className="mt-2 appearance-none block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Enter your product stock..."
               />
