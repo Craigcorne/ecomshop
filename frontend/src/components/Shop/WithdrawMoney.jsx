@@ -19,8 +19,40 @@ const WithdrawMoney = () => {
     seller.availableBalance
   );
 
-  const transferFee = withdrawAmount <= 1000 ? 15 : 22;
-  const maximumWithdrawAmount = seller.availableBalance - transferFee;
+  const balance = parseInt(availableBalance);
+  const amount = parseInt(withdrawAmount);
+
+  const determineTransferFee = (amount) => {
+    if (1 <= amount && amount <= 100) {
+      return 0;
+    } else if (101 <= amount && amount <= 500) {
+      return 12;
+    } else if (501 <= amount && amount <= 1000) {
+      return 14;
+    } else if (1001 <= amount && amount <= 1500) {
+      return 16;
+    } else if (1501 <= amount && amount <= 2500) {
+      return 23;
+    } else if (2501 <= amount && amount <= 5000) {
+      return 33;
+    } else if (5001 <= amount && amount <= 20000) {
+      return 35;
+    } else if (20001 <= amount && amount <= 150000) {
+      return 42;
+    } else {
+      return "Amount out of range";
+    }
+  };
+
+  const transferFee = determineTransferFee(amount);
+  const maximumWithdrawAmount = balance - transferFee;
+  const sellerId = seller._id;
+  const charges = amount + transferFee;
+
+  const updatedBalance = balance - charges;
+  console.log(updatedBalance);
+  console.log(charges);
+  console.log(transferFee);
 
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller._id));
@@ -38,6 +70,8 @@ const WithdrawMoney = () => {
           {
             phoneNumber: phoneNumber,
             amount: withdrawAmount,
+            sellerId: sellerId,
+            updatedBalance: updatedBalance,
           },
           { withCredentials: true }
         );
@@ -45,9 +79,6 @@ const WithdrawMoney = () => {
         if (response.data) {
           console.log("M-Pesa API Response:", response.data);
           toast.success("Withdrawal request sent successfully!");
-          const updatedBalance =
-            availableBalance - (withdrawAmount + transferFee);
-          setAvailableBalance(updatedBalance);
         }
       } catch (error) {
         console.error("Error sending M-Pesa withdrawal request:", error);

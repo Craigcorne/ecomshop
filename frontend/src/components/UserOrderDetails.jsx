@@ -10,10 +10,13 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { NumericFormat } from "react-number-format";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 import moment from "moment";
 import { BiPhoneCall } from "react-icons/bi";
 import { TbTruckDelivery } from "react-icons/tb";
 import Typed from "react-typed";
+import { FcDownload } from "react-icons/fc";
+import PdfReceipt from "./receipt";
 
 const UserOrderDetails = () => {
   const { orders } = useSelector((state) => state.order);
@@ -25,7 +28,7 @@ const UserOrderDetails = () => {
   const [rating, setRating] = useState(1);
 
   const { id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id));
@@ -101,7 +104,7 @@ const UserOrderDetails = () => {
           sellerId,
         })
         .then((res) => {
-          navigate(`/inbox?${res.data.conversation._id}`);
+          // navigate(`/inbox?${res.data.conversation._id}`);
         })
         .catch((error) => {
           toast.error(error.response.data.message);
@@ -120,6 +123,21 @@ const UserOrderDetails = () => {
               <BsFillBagFill size={30} color="crimson" />
               <h1 className="pl-2 text-[25px]">Order Details</h1>
             </div>
+            {/* <PDFDownloadLink
+              document={<PdfReceipt data={data} subTotals={subTotals} />}
+              fileName="OrderReceipt.pdf"
+            >
+              <div
+                className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px]`}
+              >
+                <FcDownload
+                  size={20}
+                  color="crimson"
+                  style={{ marginRight: "4px" }}
+                />{" "}
+                Receipt
+              </div>
+            </PDFDownloadLink> */}
           </div>
           <h1 className="text-[20px] dark:text-white lg:text-4xl font-semibold leading-7 lg:leading-9 text-gray-800">
             Order No: {data?._id.replace(/\D/g, "").slice(0, 10)}

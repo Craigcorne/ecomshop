@@ -232,10 +232,14 @@ router.post(
 router.post(
   "/withdrawal",
   catchAsyncErrors(async (req, res) => {
-    const { phoneNumber, amount } = req.body;
+    const { phoneNumber, amount, sellerId, updatedBalance } = req.body;
+
+    const seller = await Shop.findById(sellerId);
+    console.log("seller is", seller.availableBalance);
+
     console.log(phoneNumber);
     getAccessToken()
-      .then((accessToken) => {
+      .then(async (accessToken) => {
         const securityCredential = process.env.SECURITY_CREDENTIAL;
         const url =
           "https://sandbox.safaricom.co.ke/mpesa/b2c/v1/paymentrequest";
@@ -260,11 +264,15 @@ router.post(
               Occasion: "Withdrawal",
             },
           },
-          function (error, response, body) {
+          async function (error, response, body) {
             if (error) {
               console.log(error);
               res.status(500).json({ error: "Failed to initiate withdrawal" });
             } else {
+              seller.availableBalance = updatedBalance;
+              await seller.save();
+              console.log(seller.availableBalance);
+
               res.status(200).json(body);
               console.log(body);
             }

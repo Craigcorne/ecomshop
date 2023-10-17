@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { AiOutlineCamera, AiOutlineDelete } from "react-icons/ai";
+import {
+  AiOutlineArrowRight,
+  AiOutlineCamera,
+  AiOutlineDelete,
+} from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
 import styles from "../../styles/styles";
@@ -23,6 +27,8 @@ import { HiUserRemove } from "react-icons/hi";
 import Spinner from "../Spinner";
 import CustomModal from "../CustomModal";
 import DynamicLoader from "../Layout/DynamicLoader";
+import { DataGrid } from "@material-ui/data-grid";
+import { Button } from "@material-ui/core";
 
 const ProfileContent = ({ active }) => {
   const { user, error, successMessage } = useSelector((state) => state.user);
@@ -265,153 +271,96 @@ const ProfileContent = ({ active }) => {
 
 const AllOrders = () => {
   const { user } = useSelector((state) => state.user);
-  const { orders, isLoading } = useSelector((state) => state.order);
+  const { orders } = useSelector((state) => state.order);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id));
   }, []);
 
-  const getOrderStatusColor = (status) => {
-    return status === "Delivered" ? "text-green-500" : "text-red-500";
-  };
+  if (orders === undefined) {
+    // Handle loading or error state
+    return <div>{/* Render loading or error message */}</div>;
+  }
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "KES",
-    }).format(value);
-  };
+  // Group orders by creation date
+  const groupedOrders = orders.reduce((grouped, order) => {
+    const orderId = order._id;
 
-  const renderOrderButton = (orderId) => {
-    return (
-      <Link className="text-emerald-500	" to={`/user/order/${orderId}`}>
-        See Order
-      </Link>
-    );
-  };
+    if (!grouped[orderId]) {
+      grouped[orderId] = {
+        id: orderId,
+        itemsQty: 0,
+        total: 0,
+        status: order.status,
+      };
+    }
 
-  const rows = orders?.map((item) => ({
-    id: item._id,
-    no: item._id.replace(/\D/g, "").slice(0, 10),
-    createdAt: item.createdAt.slice(0, 10),
-    items: item.cart.map((i) => i.name),
-    image: item.cart.map((i) => i.images[0]),
-    itemsQty: item.cart.length,
-    total: formatCurrency(item.totalPrice),
-    status: item.status,
-    orderButton: renderOrderButton(item._id),
-  }));
+    grouped[orderId].itemsQty += order.cart.length;
+    grouped[orderId].total += order.totalPrice;
+
+    return grouped;
+  }, {});
+
+  const columns = [
+    { field: "id", headerName: "Order ID", minWidth: 150, flex: 1 },
+    {
+      field: "status",
+      headerName: "Status",
+      minWidth: 130,
+      flex: 0.7,
+      cellClassName: (params) => {
+        return params.getValue(params.id, "status") === "Delivered"
+          ? "greenColor"
+          : "redColor";
+      },
+    },
+    {
+      field: "itemsQty",
+      headerName: "Items Qty",
+      type: "number",
+      minWidth: 130,
+      flex: 0.7,
+    },
+    {
+      field: "total",
+      headerName: "Total",
+      type: "number",
+      minWidth: 130,
+      flex: 0.8,
+    },
+    {
+      field: "",
+      flex: 1,
+      minWidth: 150,
+      headerName: "",
+      type: "number",
+      sortable: false,
+      renderCell: (params) => {
+        return (
+          <>
+            <Link to={`/user/order/${params.id}`}>
+              <Button>
+                <AiOutlineArrowRight size={20} />
+              </Button>
+            </Link>
+          </>
+        );
+      },
+    },
+  ];
+
+  const rows = Object.values(groupedOrders);
 
   return (
-    <div>
-      <h3 className="pb-4 ml-2 font-bold">{user.name}'s Orders</h3>
-      {isLoading ? (
-        <DynamicLoader
-          message={"Bringing orders.."}
-          delayedmessage={"Sorry orders not coming.."}
-        />
-      ) : (
-        <>
-          {" "}
-          {rows?.map((row) => (
-            <div class="bg-white rounded-lg shadow mb-3 m-1">
-              <div class="p-4">
-                <div class="block lg:flex justify-between">
-                  <div class="block lg:flex flex-row items-center">
-                    <div>
-                      <img
-                        src={`${row.image[0]?.url}`}
-                        class="w-16 rounded"
-                        alt="Shopping item"
-                      />
-                    </div>
-                    <div class="ml-3">
-                      <h5>Order No: {row.no}</h5>
-                      <h5> {row.items.slice(0, 1) + "..."}</h5>
-                      <p class="text-sm mb-0">Ordered on: {row.createdAt}</p>
-                      <span
-                        className={`font-medium ${getOrderStatusColor(
-                          row.status
-                        )}`}
-                      >
-                        {row.status}
-                      </span>
-                    </div>
-                  </div>
-                  <div class="flex flex-row items-center">
-                    <div class="w-12">
-                      <h5 class="font-normal mb-0">{row.itemsQty}</h5>
-                    </div>
-                    <div class="w-20">
-                      <h5 class="mb-0">{row.total}</h5>
-                    </div>
-
-                    <a href="#!" class="text-gray-400">
-                      <i class="fas fa-trash-alt"></i>
-                    </a>
-                  </div>
-                  <div class="w-20">
-                    <h5 class="mb-0"> {row.orderButton}</h5>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}{" "}
-        </>
-      )}
-
-      <div className="grid grid-cols-1">
-        {rows?.map((row) => (
-          <div
-            key={row.id}
-            className="p-4 border m-2 border-indigo-500  rounded-lg"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <h4 className="text-lg font-medium">Order No. {row.no}</h4>
-              <span
-                className={`font-medium ${getOrderStatusColor(row.status)}`}
-              >
-                {row.status}
-              </span>
-            </div>
-            <p className="mb-2">Ordered On: {row.createdAt}</p>
-            <div className="block lg:flex">
-              <div className="flex">
-                <div className="mb-4 flex mr-1 w-full lg:w-24">
-                  <img
-                    src={`${row.image[0]?.url}`}
-                    alt="Order"
-                    className="w-fit lg:w-24 h-24 ml-[20%] lg:ml-0 rounded-lg object-contain"
-                  />
-                </div>
-              </div>
-              <div className="ml-1 block lg:flex space-x-0 lg:space-x-8">
-                <div>
-                  <div className="mb-2">
-                    <p className="font-bold">Items:</p>
-                    {row.items.slice(0, 1) + "..."}
-                  </div>
-                </div>
-                <div className="flex">
-                  <div className="mb-2 block">
-                    <p className="font-bold">Items Qty:</p>{" "}
-                    <p>{row.itemsQty}</p>
-                  </div>
-                  <div className="mb-2 ml-6 lg:ml-2">
-                    <p className="font-bold">Total:</p>
-                    <p>{row.total}</p>
-                  </div>
-                </div>
-                <div className="block">
-                  <p className="font-bold mb-3">Actions</p>
-                  {row.orderButton}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="pl-8 pt-1">
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSize={10}
+        disableSelectionOnClick
+        autoHeight
+      />
     </div>
   );
 };

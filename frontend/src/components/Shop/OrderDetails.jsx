@@ -17,6 +17,8 @@ const OrderDetails = () => {
 
   const { id } = useParams();
 
+  const sellerId = seller._id;
+
   useEffect(() => {
     dispatch(getAllOrdersOfShop(seller._id));
   }, [dispatch]);
@@ -29,6 +31,8 @@ const OrderDetails = () => {
         `${server}/order/update-order-status/${id}`,
         {
           status,
+          totalPricee,
+          sellerId,
         },
         { withCredentials: true }
       )
@@ -60,6 +64,19 @@ const OrderDetails = () => {
   };
 
   console.log(data?.status);
+  console.log(sellerId);
+
+  const calculateTotalPrice = () => {
+    if (data) {
+      return data.cart.reduce((total, item) => {
+        const itemPrice = item.qty * item.discountPrice;
+        return total + itemPrice;
+      }, 0);
+    }
+    return 0;
+  };
+
+  const totalPricee = calculateTotalPrice();
 
   return (
     <div className={`py-4 min-h-screen ${styles.section}`}>
@@ -100,7 +117,7 @@ const OrderDetails = () => {
             <div className="w-full">
               <h5 className="pl-3 text-[20px]">{item.name}</h5>
               <h5 className="pl-3 text-[20px] text-[#00000091]">
-                US${item.discountPrice} x {item.qty}
+                Ksh{item.discountPrice} x {item.qty}
               </h5>
             </div>
           </div>
@@ -108,7 +125,7 @@ const OrderDetails = () => {
 
       <div className="border-t w-full text-right">
         <h5 className="pt-3 text-[18px]">
-          Total Price: <strong>US${data?.totalPrice}</strong>
+          Total Price: <strong>Ksh{totalPricee}</strong>
         </h5>
       </div>
       <br />

@@ -40,6 +40,7 @@ const payOrderEmailTemplate = (order) => {
   <tr>
   <td colspan="2">Payment Method:</td>
   <td align="right">${order.paymentInfo.type}</td>
+  <td align="right">${paymentInfo.status ? Paid : "Not paid"}</td>
   </tr>
   </table>
   <h2>Shipping address</h2>

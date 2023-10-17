@@ -451,7 +451,6 @@ const PaymentInfo = ({
           </>
         ) : null}
       </div>
-
       {/* paypal payment */}
       <div>
         <div className="flex w-full pb-5 border-b mb-2">
@@ -538,9 +537,9 @@ const PaymentInfo = ({
           </div>
         ) : null}
       </div>
-
       <br />
       {/* cash on delivery */}
+
       {orderData.shippingAddress &&
         (orderData.shippingAddress.city === "Nairobi" ||
           orderData.shippingAddress.city === "Mombasa" ||
