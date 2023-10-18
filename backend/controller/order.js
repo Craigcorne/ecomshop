@@ -187,20 +187,33 @@ router.get(
 
 router.get("/generate-receipt/:orderId", (req, res) => {
   const orderId = req.params.orderId;
+  const pdfFileName = `receipt_${orderId}.pdf`;
+
+  const tempReceiptsDir = path.join(__dirname, "..", "public", "receipts");
+
+  if (!fs.existsSync(tempReceiptsDir)) {
+    fs.mkdirSync(tempReceiptsDir, { recursive: true });
+  }
 
   const doc = new pdf();
+  res.setHeader("Content-Disposition", `attachment; filename="${pdfFileName}"`);
+
+  doc.pipe(res);
+
   doc.text(`Receipt for Order ID: ${orderId}`);
-
-  // Save the PDF to a file.const
-  const pdfFileName = `receipt_${orderId}.pdf`;
-  const pdfPath = path.join(__dirname, "..", "public", "receipts", pdfFileName);
-
-  doc.pipe(fs.createWriteStream(pdfPath));
-  console.log("pdfPath:", pdfPath);
 
   doc.end();
 
-  res.download(pdfPath, `receipt_${orderId}.pdf`);
+  const tempPdfPath = path.join(tempReceiptsDir, pdfFileName);
+  res.on("finish", () => {
+    if (fs.existsSync(tempPdfPath)) {
+      fs.unlinkSync(tempPdfPath, (err) => {
+        if (err) {
+          console.error("Error while deleting the temporary file:", err);
+        }
+      });
+    }
+  });
 });
 
 // get all orders of seller
