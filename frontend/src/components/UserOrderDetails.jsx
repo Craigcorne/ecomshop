@@ -10,13 +10,12 @@ import { AiFillStar, AiOutlineStar } from "react-icons/ai";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { NumericFormat } from "react-number-format";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+
 import moment from "moment";
 import { BiPhoneCall } from "react-icons/bi";
 import { TbTruckDelivery } from "react-icons/tb";
 import Typed from "react-typed";
 import { FcDownload } from "react-icons/fc";
-import PdfReceipt from "./receipt";
 
 const UserOrderDetails = () => {
   const { orders } = useSelector((state) => state.order);
@@ -28,7 +27,7 @@ const UserOrderDetails = () => {
   const [rating, setRating] = useState(1);
 
   const { id } = useParams();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     dispatch(getAllOrdersOfUser(user._id));
@@ -104,13 +103,41 @@ const UserOrderDetails = () => {
           sellerId,
         })
         .then((res) => {
-          // navigate(`/inbox?${res.data.conversation._id}`);
+          navigate(`/inbox?${res.data.conversation._id}`);
         })
         .catch((error) => {
           toast.error(error.response.data.message);
         });
     } else {
       toast.error("Please login to create a conversation");
+    }
+  };
+
+  const handleDownloadReceipt = async () => {
+    try {
+      // Make a GET request to the backend route that generates the receipt.
+      const response = await axios.get(
+        `${server}/order/generate-receipt/${id}`,
+        {
+          responseType: "blob", // Set the response type to "blob".
+        }
+      );
+
+      // Create a Blob from the response data.
+      const blob = new Blob([response.data], { type: "application/pdf" });
+
+      // Create a download link and trigger the download.
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `receipt_${id}.pdf`;
+      a.click();
+
+      // Clean up by revoking the Object URL.
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      // Handle any errors, e.g., show a notification.
+      console.error("Error downloading receipt:", error);
     }
   };
 
@@ -123,25 +150,22 @@ const UserOrderDetails = () => {
               <BsFillBagFill size={30} color="crimson" />
               <h1 className="pl-2 text-[25px]">Order Details</h1>
             </div>
-            {/* <PDFDownloadLink
-              document={<PdfReceipt data={data} subTotals={subTotals} />}
-              fileName="OrderReceipt.pdf"
+            <a
+              onClick={handleDownloadReceipt}
+              className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px] cursor-pointer`}
             >
-              <div
-                className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px]`}
-              >
-                <FcDownload
-                  size={20}
-                  color="crimson"
-                  style={{ marginRight: "4px" }}
-                />{" "}
-                Receipt
-              </div>
-            </PDFDownloadLink> */}
+              <FcDownload
+                size={30}
+                color="crimson"
+                style={{ marginRight: "5px" }}
+              />{" "}
+              Receipt
+            </a>
           </div>
           <h1 className="text-[20px] dark:text-white lg:text-4xl font-semibold leading-7 lg:leading-9 text-gray-800">
             Order No: {data?._id.replace(/\D/g, "").slice(0, 10)}
           </h1>
+
           <p className="text-base dark:text-gray-300 font-medium leading-6 text-gray-600">
             <p className="dark:text-gray-400 text-gray-300">Placed on: </p>{" "}
             {moment(data?.createdAt).format("MMMM Do YYYY, h:mm:ss a")}

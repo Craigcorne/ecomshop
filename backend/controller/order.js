@@ -7,6 +7,9 @@ const Order = require("../model/order");
 const Shop = require("../model/shop");
 const Product = require("../model/product");
 const sendMail = require("../utils/sendMail");
+const pdf = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
 
 // create new order
 router.post(
@@ -182,6 +185,24 @@ router.get(
   })
 );
 
+router.get("/generate-receipt/:orderId", (req, res) => {
+  const orderId = req.params.orderId;
+
+  const doc = new pdf();
+  doc.text(`Receipt for Order ID: ${orderId}`);
+
+  // Save the PDF to a file.const
+  const pdfFileName = `receipt_${orderId}.pdf`;
+  const pdfPath = path.join(__dirname, "..", "public", "receipts", pdfFileName);
+
+  doc.pipe(fs.createWriteStream(pdfPath));
+  console.log("pdfPath:", pdfPath);
+
+  doc.end();
+
+  res.download(pdfPath, `receipt_${orderId}.pdf`);
+});
+
 // get all orders of seller
 router.get(
   "/get-seller-all-orders/:shopId",
@@ -238,7 +259,6 @@ router.put(
           const amountToAdd = (realTotalPrice * 0.9).toFixed(2);
 
           seller.availableBalance += parseFloat(amountToAdd);
-          
 
           await seller.save();
         }

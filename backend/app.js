@@ -92,5 +92,6 @@ app.use("/api/v2/flashsale", flashSale);
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
+app.use(express.static("public"));
 
 module.exports = app;
