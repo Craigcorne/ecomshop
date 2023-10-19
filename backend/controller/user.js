@@ -10,6 +10,7 @@ const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const crypto = require("crypto");
+const passport = require("passport");
 
 //create user
 router.post("/create-user", async (req, res, next) => {
@@ -1188,6 +1189,69 @@ router.put(
       return next(new ErrorHandler(error.message, 500));
     }
   })
+);
+
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.post("/login-with-google", async (req, res) => {
+  const googleAccessToken = req.body.accessToken;
+  const email = req.body.email;
+
+  const googleUserId = googleAccessToken;
+
+  try {
+    const user = await User.findOne({ googleId: googleUserId });
+
+    if (user) {
+      const token = jwt.sign(
+        { userId: user._id },
+        "JHYTRQfgftrcxz$%^874322dsffSDSS%%",
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(200).json({ token });
+    } else {
+      // Create a new user with required fields
+      const newUser = new User({
+        email: email,
+        googleId: googleUserId,
+        avatar: {
+          url: "default_avatar_url", // Provide a default avatar URL
+          public_id: "default_avatar_public_id", // Provide a default public ID
+        },
+        password: "default_password", // Provide a default password
+        name: "default_name", // Provide a default name
+      });
+
+      // Save the new user to the database
+      await newUser.save();
+
+      const token = jwt.sign(
+        { userId: newUser._id },
+        "JHYTRQfgftrcxz$%^874322dsffSDSS%%",
+        {
+          expiresIn: "1h",
+        }
+      );
+      res.status(200).json({ token });
+    }
+  } catch (error) {
+    console.log("this is the error", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Google Sign-In callback route
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("http://localhost:3000/");
+  }
 );
 
 //update phone on checkout

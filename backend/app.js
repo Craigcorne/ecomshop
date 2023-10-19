@@ -5,6 +5,74 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const User = require("./model/user");
+const session = require("express-session");
+
+app.use(
+  session({
+    secret: "JHYTRQfgftrcxz$%^874322dsffSDSS%%iiiioi", // Replace with a secure secret key
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+
+  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+
+  next();
+});
+
+// Passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+const GOOGLE_CLIENT_ID =
+  "997894008076-ls9fbuseh8al9ik3mfm4o86m15871lav.apps.googleusercontent.com";
+const GOOGLE_CLIENT_SECRET = "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";
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const existingUser = await User.findOne({ googleId: profile.id });
+
+        if (existingUser) {
+          return done(null, existingUser);
+        }
+
+        const newUser = new User({
+          googleId: profile.id,
+          name: profile.displayName,
+          email: profile.emails[0].value,
+          // Add any other fields you need
+        });
+
+        await newUser.save();
+        done(null, newUser);
+      } catch (error) {
+        done(error, null);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  User.findById(id)
+    .then((user) => done(null, user))
+    .catch((error) => done(error, null));
+});
 
 app.options(
   "*",

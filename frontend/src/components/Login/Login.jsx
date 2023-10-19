@@ -12,6 +12,8 @@ import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
 import { useLocation } from "react-router-dom";
 import Cookies from "js-cookie";
+import { GoogleLogin } from "react-google-login";
+import { gapi } from "gapi-script";
 
 const loginSchema = yup.object({
   email: yup
@@ -27,7 +29,10 @@ const Login = () => {
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingg, setLoadingg] = useState(false);
   const location = useLocation();
+  const googleClientId =
+    "997894008076-ls9fbuseh8al9ik3mfm4o86m15871lav.apps.googleusercontent.com";
 
   useEffect(() => {
     const checkThirdPartyCookies = async () => {
@@ -54,6 +59,41 @@ const Login = () => {
 
     checkThirdPartyCookies();
   }, []);
+
+  const handleGoogleLoginSuccess = async (response) => {
+    setLoading(false);
+
+    const email = response.profileObj.email;
+    const accessToken = response.accessToken;
+
+    await axios
+      .post(
+        `${server}/user/login-with-google`,
+        {
+          email,
+          accessToken,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        toast.success("Login Success!");
+        navigate(
+          location?.state?.previousUrl ? location.state.previousUrl : "/"
+        );
+        window.location.reload(true);
+      })
+      .catch((err) => {
+        toast.error(err.response.data.message);
+        setError(true);
+
+        setErrorMessage(err.response.data.message);
+      });
+  };
+
+  const handleGoogleLoginFailure = (error) => {
+    console.error("Google login error:", error);
+    console.log(error);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -198,6 +238,14 @@ const Login = () => {
                   </Link>
                 </div>
               </div>
+
+              <GoogleLogin
+                clientId={googleClientId}
+                buttonText="Login with Google"
+                onSuccess={handleGoogleLoginSuccess}
+                onFailure={handleGoogleLoginFailure}
+                cookiePolicy={"single_host_origin"}
+              />
               <div>
                 <button
                   type="submit"
