@@ -36,7 +36,9 @@ const CreateProduct = () => {
 
   const [images, setImages] = useState([]);
   const [categories, setCategories] = useState([]);
+
   const [loading, setLoading] = useState(false);
+  const [loadingg, setLoadingg] = useState(false);
 
   const [sizes, setSizes] = useState([{ name: "", price: "", stock: "" }]);
   const [totalStock, setTotalStock] = useState(0);
@@ -96,9 +98,15 @@ const CreateProduct = () => {
       });
       setTotalStock(newTotalStock);
       setHasSizes(true);
+
+      // Update the product stock in the formik values
+      formik.setFieldValue("stock", newTotalStock);
     } else {
       setTotalStock(0);
       setHasSizes(false);
+
+      // Reset the product stock in the formik values
+      formik.setFieldValue("stock", "");
     }
   };
 
@@ -123,6 +131,7 @@ const CreateProduct = () => {
     validationSchema: createProductSchema,
     onSubmit: async (values) => {
       setLoading(true);
+      setLoadingg(true);
       const name = values.name;
       const description = values.description;
       const category = values.category;
@@ -495,7 +504,7 @@ const CreateProduct = () => {
               disabled={loading}
               className="mt-2 cursor-pointer appearance-none text-center block w-full px-3 h-[35px] border border-gray-300 rounded-[3px] placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
-              {loading ? "Creating..." : "Create"}
+              {loadingg ? "Creating..." : "Create"}
             </button>
           </div>
         </div>

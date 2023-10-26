@@ -125,11 +125,21 @@ const EditProduct = () => {
         // Use axios to send the updated product data
         await axios.put(
           `${server}/product/update-product/${productId}`,
-          newForm
+          name,
+          description,
+          category,
+          tags,
+          originalPrice,
+          discountPrice,
+          stock,
+          condition,
+          images,
+          sizes
         );
 
         setLoading(false);
         toast.success("Product updated!");
+        console.log("this is the", newForm);
       } catch (error) {
         setLoading(false);
         console.log(error);
@@ -149,6 +159,39 @@ const EditProduct = () => {
     };
     fetchCategories();
   }, []);
+
+  // useEffect(() => {
+  //   const fetchProductData = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         `${server}/product/get-product/${productId}`
+  //       );
+
+  //       const productData = response.data.product;
+  //       console.log("product data ", productData);
+  //       formik.setValues({
+  //         name: productData.name,
+  //         description: productData.description,
+  //         category: productData.category,
+  //         tags: productData.tags,
+  //         originalPrice: productData.originalPrice,
+  //         discountPrice: productData.discountPrice,
+  //         stock: productData.stock,
+  //         condition: productData.condition,
+  //         sizes: productData.sizes,
+  //       });
+
+  //       console.log(sizes);
+  //       // setcurrentSizes(productData.sizes);
+
+  //       setcurrentImages(productData.images);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+
+  //   fetchProductData();
+  // }, [productId]);
 
   useEffect(() => {
     const fetchProductData = async () => {
@@ -192,7 +235,7 @@ const EditProduct = () => {
             sizes: [],
           });
         }
-
+        setcurrentImages(productData.images);
         console.log(productData);
       } catch (error) {
         console.log(error);

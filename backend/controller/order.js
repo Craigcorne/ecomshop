@@ -11,6 +11,7 @@ const pdf = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
 
+const sharedOrderDetails = [];
 // create new order
 router.post(
   "/create-order",
@@ -45,6 +46,7 @@ router.post(
       }
 
       const orders = [];
+      const sharedOrderDetails = [];
 
       for (const [shopId, items] of shopItemsMap) {
         const shopEmail = shopEmailsMap.get(shopId);
@@ -108,52 +110,9 @@ router.post(
             );
           }
           orders.push(order);
+          sharedOrderDetails.push(order);
         }
       }
-
-      const combinedAttachments = [];
-      for (const order of orders) {
-        combinedAttachments.push(
-          ...order.cart.map((item) => ({
-            filename: item.images[0].url,
-            path: item.images[0].url,
-            cid: item.images[0].url,
-          }))
-        );
-      }
-      combinedAttachments.push({
-        filename: "logo.png",
-        path: `https://res.cloudinary.com/bramuels/image/upload/v1695878268/logo/LOGO-01_moo9oc.png`,
-        cid: "logo",
-      });
-
-      // Send a single email to the user with combined order details
-      // await sendMail({
-      //   email: user.email,
-      //   subject: "Order Confirmation",
-      //   attachments: combinedAttachments,
-      // });
-
-      // Send individual emails to each shop
-      // for (const [shopId, shopEmail] of shopEmailsMap.entries()) {
-      //   const shopAttachments = shopItemsMap.get(shopId).map((item) => ({
-      //     filename: item.images[0].url,
-      //     path: item.images[0].url,
-      //     cid: item.images[0].url,
-      //   }));
-      //   shopAttachments.push({
-      //     filename: "logo.png",
-      //     path: `https://res.cloudinary.com/bramuels/image/upload/v1695878268/logo/LOGO-01_moo9oc.png`,
-      //     cid: "logo",
-      //   });
-
-      //   await sendMail({
-      //     email: shopEmail,
-      //     subject: "Order Confirmation for Your Shop",
-
-      //     attachments: shopAttachments,
-      //   });
-      // }
 
       res.status(201).json({
         success: true,
@@ -161,7 +120,62 @@ router.post(
       });
     } catch (error) {
       console.log(error);
+
       return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+router.post(
+  "/sendemail",
+  catchAsyncErrors(async (req, res, next) => {
+    const orders = sharedOrderDetails;
+    console.log(orders);
+
+    const combinedAttachments = [];
+    for (const order of orders) {
+      console.log(order);
+
+      combinedAttachments.push(
+        ...order.cart.map((item) => ({
+          filename: item.images[0].url,
+          path: item.images[0].url,
+          cid: item.images[0].url,
+        }))
+      );
+    }
+    combinedAttachments.push({
+      filename: "logo.png",
+      path: `https://res.cloudinary.com/bramuels/image/upload/v1695878268/logo/LOGO-01_moo9oc.png`,
+      cid: "logo",
+    });
+
+    // Send a single email to the user with combined order details
+    await sendMail({
+      email: user.email,
+      subject: "Order Confirmation",
+      attachments: combinedAttachments,
+    });
+
+    // Send individual emails to each shop
+    for (const [shopId, shopEmail] of shopEmailsMap.entries()) {
+      const shopAttachments = shopItemsMap.get(shopId).map((item) => ({
+        filename: item.images[0].url,
+        path: item.images[0].url,
+        cid: item.images[0].url,
+      }));
+      shopAttachments.push({
+        filename: "logo.png",
+        path: `https://res.cloudinary.com/bramuels/image/upload/v1695878268/logo/LOGO-01_moo9oc.png`,
+        cid: "logo",
+      });
+
+      await sendMail({
+        email: shopEmail,
+        subject: "Order Confirmation for Your Shop",
+
+        attachments: shopAttachments,
+      });
     }
   })
 );

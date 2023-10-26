@@ -13,6 +13,10 @@ const orderSchema = new mongoose.Schema({
     type: Object,
     required: true,
   },
+  // user: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   required: true,
+  // },
   totalPrice: {
     type: Number,
     required: true,

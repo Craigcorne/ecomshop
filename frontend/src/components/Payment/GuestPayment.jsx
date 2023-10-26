@@ -14,8 +14,8 @@ import * as yup from "yup";
 import Spinner from "../Spinner";
 import mpesa1 from "./mpesa1.png";
 
-const Payment = () => {
-  const { user } = useSelector((state) => state.user);
+const GuestPayment = () => {
+  const { cart } = useSelector((state) => state.cart);
   const { statements } = useSelector((state) => state.statements);
   const [orderData, setOrderData] = useState([]);
   const [open, setOpen] = useState(false);
@@ -27,8 +27,12 @@ const Payment = () => {
   useEffect(() => {
     const orderData = JSON.parse(localStorage.getItem("latestOrder"));
     setOrderData(orderData);
+    if (cart.length === 0) {
+      navigate("/products");
+    }
   }, []);
-  console.log();
+
+  console.log("orderGata", orderData);
 
   const exchangeRate = statements?.map((i) => i.exchangeRate);
   const paypalTotals = (orderData?.totalPrice / exchangeRate).toFixed(2);
@@ -57,7 +61,7 @@ const Payment = () => {
   const order = {
     cart: orderData?.cart,
     shippingAddress: orderData?.shippingAddress,
-    user: user && user,
+    user: orderData?.user,
     totalPrice: orderData?.totalPrice,
     shippingPrice: orderData.shippingPrice,
     discount: orderData.discountPrice,
@@ -103,7 +107,6 @@ const Payment = () => {
         }, 2000);
       });
     setLoading2(false);
-    await axios.post(`${server}/order/sendemail`);
   };
 
   const cashOnDeliveryHandler = async (e) => {
@@ -128,8 +131,6 @@ const Payment = () => {
           toast.success("Order successful!");
           localStorage.setItem("cartItems", JSON.stringify([]));
           localStorage.setItem("latestOrder", JSON.stringify([]));
-          const latestOrder = JSON.parse(localStorage.getItem("latestOrder"));
-          console.log("this is the", latestOrder);
           setTimeout(() => {
             window.location.reload();
           }, 2000);
@@ -147,7 +148,7 @@ const Payment = () => {
       <div className="w-[90%] 1000px:w-[70%] block 800px:flex">
         <div className="w-full 800px:w-[65%]">
           <PaymentInfo
-            user={user}
+            user={orderData?.user}
             open={open}
             setOpen={setOpen}
             onApprove={onApprove}
@@ -284,7 +285,10 @@ const PaymentInfo = ({
 
   const formik = useFormik({
     initialValues: {
-      phone: `${user && user.phoneNumber ? user && user.phoneNumber : ""}`,
+      phone:
+        (user && user.phoneNumber) ||
+        (orderData?.user && orderData.user.phoneNumber) ||
+        "",
     },
 
     validationSchema: mpesaSchema,
@@ -425,7 +429,7 @@ const PaymentInfo = ({
                       success ||
                       validating ||
                       error ||
-                      amount1 > 150000
+                      amount1 > 250000
                     }
                     type="submit"
                     className="group relative w-full flex justify-center mb-4 py-3 px-4 border border-transparent text-[16px] font-[600] rounded-[5px] text-white !bg-[#12b32a] hover:!bg-[#12b32a] disabled:!bg-[#a8deb0] disabled:cursor-not-allowed"
@@ -546,6 +550,7 @@ const PaymentInfo = ({
       {orderData.shippingAddress &&
         (orderData.shippingAddress.city === "Nairobi" ||
           orderData.shippingAddress.city === "Mombasa" ||
+          orderData?.totalPrice >= 5000 ||
           orderData.shippingAddress.city === "Self Pickup") && (
           <div>
             <div className="flex w-full pb-5 border-b mb-2">
@@ -648,4 +653,4 @@ const CartData = ({ orderData }) => {
   );
 };
 
-export default Payment;
+export default GuestPayment;

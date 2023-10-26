@@ -60,6 +60,10 @@ const Login = () => {
     checkThirdPartyCookies();
   }, []);
 
+  const handleOrderAsGuest = () => {
+    navigate("/guest-checkout");
+  };
+
   const handleGoogleLoginSuccess = async (response) => {
     setLoading(false);
 
@@ -139,11 +143,20 @@ const Login = () => {
         className="bg-gray-50 flex flex-col justify-center py-1 sm:px-6 lg:px-8 mb-1"
         style={{ margin: "0 20px" }}
       >
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <button
+            onClick={() => handleOrderAsGuest()}
+            className="w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+          >
+            Continue as Guest
+          </button>
+        </div>
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Login to your account
           </h2>
         </div>
+
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             {error && (
@@ -260,6 +273,7 @@ const Login = () => {
                   )}
                 </button>
               </div>
+
               <div className={`${styles.noramlFlex} w-full`}>
                 <h4>Not have any account?</h4>
                 <Link to="/sign-up" className="text-blue-600 pl-2">

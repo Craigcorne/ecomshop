@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  useLocation,
+  Router,
+} from "react-router-dom";
 import {
   LoginPage,
   SignupPage,
@@ -87,6 +93,8 @@ import ScrollToTop from "./components/ScroolTop";
 import DynamicLoader from "./components/Layout/DynamicLoader";
 import CreateFlashSale from "./components/Shop/CreateFlashSale";
 import ShopAllFlashSale from "./pages/Shop/ShopAllFlashSale";
+import GuestCheckoutPage from "./pages/GuestCheckout";
+import GuestPaymentPage from "./pages/GuestPaymentPage";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -112,9 +120,9 @@ const App = () => {
             <Route
               path="/payment"
               element={
-                // <ProtectedRoute>
-                <PaymentPage />
-                // </ProtectedRoute>
+                <ProtectedRoute>
+                  <PaymentPage />
+                </ProtectedRoute>
               }
             />
           </Routes>
@@ -126,6 +134,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/sign-up" element={<SignupPage />} />
         <Route path="/terms" element={<Terms />} />
+
         <Route
           path="/activation/:activation_token"
           element={<ActivationPage />}
@@ -134,6 +143,7 @@ const App = () => {
           path="/seller/activation/:activation_token"
           element={<SellerActivationPage />}
         />
+        <Route path="/guest-payment" element={<GuestPaymentPage />} />
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/best-selling" element={<BestSellingPage />} />
@@ -210,6 +220,8 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/guest-checkout" element={<GuestCheckoutPage />} />
+
         <Route path="/order/success" element={<OrderSuccessPage />} />
         <Route
           path="/profile"

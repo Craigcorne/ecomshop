@@ -1,13 +1,14 @@
 import React, { useEffect } from "react";
 import Header from "../components/Layout/Header";
 import CheckoutSteps from "../components/Checkout/CheckoutSteps";
-import Checkout from "../components/Checkout/Checkout";
+
 import Footer from "../components/Layout/Footer";
 import Meta from "../components/Meta";
+import GuestCheckout from "../components/Checkout/GuestCheckout";
 import { useNavigate } from "react-router-dom";
 
-const CheckoutPage = ({ guestOrder }) => {
-  // Add an effect to check if it's a guest order and redirect accordingly
+const GuestCheckoutPage = () => {
+  const navigate = useNavigate();
 
   return (
     <div>
@@ -17,7 +18,7 @@ const CheckoutPage = ({ guestOrder }) => {
       <br />
       <br />
       <CheckoutSteps active={1} />
-      <Checkout />
+      <GuestCheckout />
       <br />
       <br />
       <Footer />
@@ -25,4 +26,4 @@ const CheckoutPage = ({ guestOrder }) => {
   );
 };
 
-export default CheckoutPage;
+export default GuestCheckoutPage;
