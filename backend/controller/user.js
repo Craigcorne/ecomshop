@@ -1220,11 +1220,11 @@ router.post("/login-with-google", async (req, res) => {
         email: email,
         googleId: googleUserId,
         avatar: {
-          url: "default_avatar_url", // Provide a default avatar URL
-          public_id: "default_avatar_public_id", // Provide a default public ID
+          url: "default_avatar_url",
+          public_id: "default_avatar_public_id",
         },
-        password: "default_password", // Provide a default password
-        name: "default_name", // Provide a default name
+        password: "default_password",
+        name: "default_name",
       });
 
       // Save the new user to the database
@@ -1232,7 +1232,7 @@ router.post("/login-with-google", async (req, res) => {
 
       const token = jwt.sign(
         { userId: newUser._id },
-        "JHYTRQfgftrcxz$%^874322dsffSDSS%%",
+        process.env.JWT_SECRET_KEY,
         {
           expiresIn: "1h",
         }
@@ -1250,7 +1250,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
-    res.redirect("http://localhost:3000/");
+    res.redirect("http://localhost:3000");
   }
 );
 
