@@ -95,6 +95,7 @@ import CreateFlashSale from "./components/Shop/CreateFlashSale";
 import ShopAllFlashSale from "./pages/Shop/ShopAllFlashSale";
 import GuestCheckoutPage from "./pages/GuestCheckout";
 import GuestPaymentPage from "./pages/GuestPaymentPage";
+import AdminOrders from "./components/Admin/AdminOrders";
 
 const App = () => {
   const [stripeApikey, setStripeApiKey] = useState("");
@@ -419,6 +420,14 @@ const App = () => {
           element={
             <ProtectedAdminRoute>
               <AdminDashboardOrders />
+            </ProtectedAdminRoute>
+          }
+        />
+        <Route
+          path="/admin-orders/:id"
+          element={
+            <ProtectedAdminRoute>
+              <AdminOrders />
             </ProtectedAdminRoute>
           }
         />

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styles from "../../styles/styles";
-import { AiOutlineMoneyCollect } from "react-icons/ai";
+import { AiOutlineArrowRight, AiOutlineMoneyCollect } from "react-icons/ai";
 import { MdBorderClear } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { DataGrid } from "@material-ui/data-grid";
@@ -11,6 +11,7 @@ import { getAllSellers } from "../../redux/actions/sellers";
 import axios from "axios";
 import { server } from "../../server";
 import moment from "moment";
+import { Button } from "@material-ui/core";
 
 const AdminDashboardMain = () => {
   const dispatch = useDispatch();
@@ -61,11 +62,23 @@ const AdminDashboardMain = () => {
       flex: 0.8,
     },
     {
-      field: "createdAt",
-      headerName: "Order Date",
+      field: " ",
+      flex: 1,
+      minWidth: 150,
+      headerName: "",
       type: "number",
-      minWidth: 130,
-      flex: 0.8,
+      sortable: false,
+      renderCell: (params) => {
+        return (
+          <>
+            <Link to={`/admin-orders/${params.id}`}>
+              <Button>
+                <AiOutlineArrowRight size={20} />
+              </Button>
+            </Link>
+          </>
+        );
+      },
     },
   ];
 
@@ -75,7 +88,7 @@ const AdminDashboardMain = () => {
       row.push({
         id: item._id,
         itemsQty: item?.cart?.reduce((acc, item) => acc + item.qty, 0),
-        total: item?.totalPrice + " $",
+        total: " Ksh" + item?.totalPrice,
         status: item?.status,
         createdAt: item?.createdAt.slice(0, 10),
       });

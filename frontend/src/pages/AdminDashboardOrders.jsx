@@ -5,6 +5,9 @@ import { DataGrid } from "@material-ui/data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrdersOfAdmin } from "../redux/actions/order";
 import Meta from "../components/Meta";
+import { Link } from "react-router-dom";
+import { Button } from "@material-ui/core";
+import { AiOutlineArrowRight } from "react-icons/ai";
 
 const AdminDashboardOrders = () => {
   const dispatch = useDispatch();
@@ -47,11 +50,23 @@ const AdminDashboardOrders = () => {
       flex: 0.8,
     },
     {
-      field: "createdAt",
-      headerName: "Order Date",
+      field: " ",
+      flex: 1,
+      minWidth: 150,
+      headerName: "",
       type: "number",
-      minWidth: 130,
-      flex: 0.8,
+      sortable: false,
+      renderCell: (params) => {
+        return (
+          <>
+            <Link to={`/admin-orders/${params.id}`}>
+              <Button>
+                <AiOutlineArrowRight size={20} />
+              </Button>
+            </Link>
+          </>
+        );
+      },
     },
   ];
 
@@ -61,9 +76,9 @@ const AdminDashboardOrders = () => {
       row.push({
         id: item._id,
         itemsQty: item?.cart?.reduce((acc, item) => acc + item.qty, 0),
-        total: item?.totalPrice + " $",
+        total: "Ksh" + item?.totalPrice,
         status: item?.status,
-        createdAt: item?.createdAt.slice(0, 10),
+        Details: item?.createdAt.slice(0, 10),
       });
     });
   return (

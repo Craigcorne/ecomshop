@@ -3,27 +3,41 @@ import styles from "../../styles/styles";
 import { BsFillBagFill } from "react-icons/bs";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllOrdersOfShop } from "../../redux/actions/order";
+import { getAllOrdersOfAdmin } from "../../redux/actions/order";
 import { server } from "../../server";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const OrderDetails = () => {
-  const { orders, isLoading } = useSelector((state) => state.order);
-  const { seller } = useSelector((state) => state.seller);
+const AdminOrders = () => {
   const dispatch = useDispatch();
   const [status, setStatus] = useState("");
   const navigate = useNavigate();
+  const [data, setData] = useState(null);
 
+  const [sellerId, setSellerId] = useState("");
   const { id } = useParams();
 
-  const sellerId = seller._id;
-
   useEffect(() => {
-    dispatch(getAllOrdersOfShop(seller._id));
-  }, [dispatch]);
+    // Fetch order details when the component mounts
+    async function fetchOrderDetails() {
+      try {
+        const response = await axios.get(
+          `${server}/order/get-order-details/${id}`,
+          { withCredentials: true }
+        );
+        setData(response.data.order);
+        setSellerId(response.data.order.cart[0].shopId);
+      } catch (error) {
+        toast.error(error.response.data.message);
+        console.error(
+          "Error fetching order details:",
+          error.response.data.message
+        );
+      }
+    }
 
-  const data = orders && orders.find((item) => item._id === id);
+    fetchOrderDetails();
+  }, [id]);
 
   const orderUpdateHandler = async (e) => {
     await axios
@@ -38,7 +52,7 @@ const OrderDetails = () => {
       )
       .then((res) => {
         toast.success("Order updated!");
-        navigate("/dashboard-orders");
+        navigate("/admin-orders");
       })
       .catch((error) => {
         toast.error(error.response.data.message);
@@ -57,15 +71,12 @@ const OrderDetails = () => {
       )
       .then((res) => {
         toast.success("Order updated!");
-        dispatch(getAllOrdersOfShop(seller._id));
+        dispatch(getAllOrdersOfAdmin());
       })
       .catch((error) => {
         toast.error(error.response.data.message);
       });
   };
-
-  console.log(data?.status);
-  console.log(data);
 
   const calculateTotalPrice = () => {
     if (data) {
@@ -78,6 +89,7 @@ const OrderDetails = () => {
   };
 
   const totalPricee = calculateTotalPrice();
+  console.log("this is", data);
 
   return (
     <div className={`py-4 min-h-screen ${styles.section}`}>
@@ -86,7 +98,7 @@ const OrderDetails = () => {
           <BsFillBagFill size={30} color="crimson" />
           <h1 className="pl-2 text-[25px]">Order Details</h1>
         </div>
-        <Link to="/dashboard-orders">
+        <Link to="/admin-orders">
           <div
             className={`${styles.button} !bg-[#fce1e6] !rounded-[4px] text-[#e94560] font-[600] !h-[45px] text-[18px]`}
           >
@@ -167,11 +179,23 @@ const OrderDetails = () => {
             onChange={(e) => setStatus(e.target.value)}
             className="w-[200px] mt-2 border h-[35px] rounded-[5px]"
           >
-            {["Processing", "Transferred to delivery partner"]
+            {[
+              "Processing",
+              "Transferred to delivery partner",
+              "Shipping",
+              "Received",
+              "On the way",
+              "Delivered",
+            ]
               .slice(
-                ["Processing", "Transferred to delivery partner"].indexOf(
-                  data?.status
-                )
+                [
+                  "Processing",
+                  "Transferred to delivery partner",
+                  "Shipping",
+                  "Received",
+                  "On the way",
+                  "Delivered",
+                ].indexOf(data?.status)
               )
               .map((option, index) => (
                 <option value={option} key={index}>
@@ -213,4 +237,4 @@ const OrderDetails = () => {
   );
 };
 
-export default OrderDetails;
+export default AdminOrders;

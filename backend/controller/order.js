@@ -254,7 +254,7 @@ router.get(
 // update order status for seller
 router.put(
   "/update-order-status/:id",
-  isSeller,
+  // isSeller,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const order = await Order.findById(req.params.id);
@@ -413,6 +413,23 @@ router.get(
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
+  })
+);
+
+router.get(
+  "/get-order-details/:id",
+  catchAsyncErrors(async (req, res, next) => {
+    const orderId = req.params.id;
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+      return next(new ErrorHandler("Order not found with this ID", 404));
+    }
+
+    res.status(200).json({
+      success: true,
+      order,
+    });
   })
 );
 
